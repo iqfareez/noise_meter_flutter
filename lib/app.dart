@@ -66,7 +66,7 @@ class _NoiseAppState extends State<NoiseApp> {
       body: Container(
         child: Center(
             child: Text(
-          '$maxDB',
+          '${maxDB}',
           style: TextStyle(fontSize: 30),
         )),
       ),
