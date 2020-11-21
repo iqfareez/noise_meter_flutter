@@ -71,7 +71,7 @@ class _NoiseAppState extends State<NoiseApp> {
 
   @override
   Widget build(BuildContext context) {
-    if (chartData.length == 25) {
+    if (chartData.length >= 25) {
       chartData.removeAt(0);
     }
     return Scaffold(
