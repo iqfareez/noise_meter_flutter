@@ -15,7 +15,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       // debugShowCheckedModeBanner: false,
-      title: 'db Meter Flutter',
+      title: 'db Meter',
       home: NoiseApp(),
       darkTheme: ThemeData.dark().copyWith(),
       themeMode: appTheme,
