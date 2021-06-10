@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:noise_meter/noise_meter.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -14,13 +15,14 @@ class NoiseApp extends StatefulWidget {
 
 class _NoiseAppState extends State<NoiseApp> {
   bool _isRecording = false;
-  StreamSubscription<NoiseReading> _noiseSubscription;
-  NoiseMeter _noiseMeter;
-  double maxDB;
-  double meanDB;
+  // ignore: cancel_subscriptions
+  StreamSubscription<NoiseReading>? _noiseSubscription;
+  late NoiseMeter _noiseMeter;
+  double? maxDB;
+  double? meanDB;
   List<_ChartData> chartData = <_ChartData>[];
-  ChartSeriesController _chartSeriesController;
-  int previousMillis;
+  // ChartSeriesController? _chartSeriesController;
+  late int previousMillis;
 
   @override
   void initState() {
@@ -61,16 +63,54 @@ class _NoiseAppState extends State<NoiseApp> {
 
   void stop() async {
     try {
-      if (_noiseSubscription != null) {
-        _noiseSubscription.cancel();
-        _noiseSubscription = null;
-      }
+      _noiseSubscription!.cancel();
+      _noiseSubscription = null;
+
       this.setState(() => this._isRecording = false);
     } catch (e) {
       print('stopRecorder error: $e');
     }
     previousMillis = 0;
     chartData.clear();
+  }
+
+  void copyValue(
+    bool theme,
+  ) {
+    Clipboard.setData(
+      ClipboardData(
+          text: 'It\'s about ${maxDB!.toStringAsFixed(1)}dB loudness'),
+    ).then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(milliseconds: 2500),
+          content: Row(
+            children: [
+              Icon(
+                Icons.check,
+                size: 14,
+                color: theme ? Colors.white70 : Colors.black,
+              ),
+              SizedBox(width: 10),
+              Text('Copied')
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  openGithub() async {
+    const url = 'https://github.com/iqfareez/noise_meter_flutter';
+    try {
+      await launch(url);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Could not launch $url'),
+        backgroundColor: Colors.red,
+      ));
+    }
   }
 
   @override
@@ -87,44 +127,11 @@ class _NoiseAppState extends State<NoiseApp> {
           IconButton(
               tooltip: 'Source code on GitHub',
               icon: Icon(Icons.code_outlined),
-              onPressed: () async {
-                const url = 'https://github.com/iqfareez/Sound-Meter-Flutter';
-                if (await canLaunch(url)) {
-                  await launch(url);
-                } else {
-                  throw 'Could not launch $url';
-                }
-              }),
+              onPressed: openGithub),
           IconButton(
             tooltip: 'Copy value to clipboard',
             icon: Icon(Icons.copy),
-            onPressed: maxDB != null
-                ? () {
-                    Clipboard.setData(
-                      ClipboardData(
-                          text:
-                              'It\'s about ${maxDB.toStringAsFixed(1)}dB loudness'),
-                    ).then((_) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          behavior: SnackBarBehavior.floating,
-                          duration: Duration(milliseconds: 2500),
-                          content: Row(
-                            children: [
-                              Icon(
-                                Icons.check,
-                                size: 14,
-                                color: _isDark ? Colors.white70 : Colors.black,
-                              ),
-                              SizedBox(width: 10),
-                              Text('Copied')
-                            ],
-                          ),
-                        ),
-                      );
-                    });
-                  }
-                : null,
+            onPressed: maxDB != null ? () => copyValue(_isDark) : null,
           )
         ],
       ),
@@ -142,14 +149,14 @@ class _NoiseAppState extends State<NoiseApp> {
               flex: 2,
               child: Center(
                 child: Text(
-                  maxDB != null ? maxDB.toStringAsFixed(2) : 'Press start',
-                  style: TextStyle(fontSize: 76, fontWeight: FontWeight.bold),
+                  maxDB != null ? maxDB!.toStringAsFixed(2) : 'Press start',
+                  style: GoogleFonts.exo2(fontSize: 76),
                 ),
               ),
             ),
             Text(
               meanDB != null
-                  ? 'Mean: ${meanDB.toStringAsFixed(2)}'
+                  ? 'Mean: ${meanDB!.toStringAsFixed(2)}'
                   : 'Awaiting data',
               style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
             ),
@@ -157,9 +164,6 @@ class _NoiseAppState extends State<NoiseApp> {
               child: SfCartesianChart(
                 series: <LineSeries<_ChartData, double>>[
                   LineSeries<_ChartData, double>(
-                      onRendererCreated: (ChartSeriesController controller) {
-                        _chartSeriesController = controller;
-                      },
                       dataSource: chartData,
                       xAxisName: 'Time',
                       yAxisName: 'dB',
@@ -181,8 +185,8 @@ class _NoiseAppState extends State<NoiseApp> {
 }
 
 class _ChartData {
-  final double maxDB;
-  final double meanDB;
+  final double? maxDB;
+  final double? meanDB;
   final double frames;
 
   _ChartData(this.maxDB, this.meanDB, this.frames);

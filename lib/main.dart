@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:noise_meter_flutter/app.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'app.dart';
 
 ThemeMode appTheme = ThemeMode.system; //dark / light
 
@@ -17,7 +18,20 @@ class _MyAppState extends State<MyApp> {
       // debugShowCheckedModeBanner: false,
       title: 'db Meter',
       home: NoiseApp(),
-      darkTheme: ThemeData.dark().copyWith(),
+      darkTheme: ThemeData.dark().copyWith(
+        textTheme: ThemeData.dark().textTheme.apply(
+              fontFamily: GoogleFonts.comfortaa().fontFamily,
+            ),
+        primaryTextTheme: ThemeData.dark().textTheme.apply(
+              fontFamily: GoogleFonts.comfortaa().fontFamily,
+            ),
+        accentTextTheme: ThemeData.dark().textTheme.apply(
+              fontFamily: GoogleFonts.comfortaa().fontFamily,
+            ),
+      ),
+      theme: ThemeData(
+        fontFamily: GoogleFonts.comfortaa().fontFamily,
+      ),
       themeMode: appTheme,
     );
   }
