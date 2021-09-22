@@ -47,7 +47,7 @@ class _NoiseAppState extends State<NoiseApp> {
     );
   }
 
-  void onError(PlatformException e) {
+  void onError(Object e) {
     print(e.toString());
     _isRecording = false;
   }
